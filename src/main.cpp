@@ -11,14 +11,14 @@
 Drive chassis (
   // Left Chassis Ports (negative port will reverse it!)
   //   the first port is the sensored port (when trackers are not used!)
-  {-13, -6},
+  {-20, -10},
 
   // Right Chassis Ports (negative port will reverse it!)
   //   the first port is the sensored port (when trackers are not used!)
-  {11, 5}
+  {11, 18}
 
   // IMU Port
-  ,15
+  ,13
 
   // Wheel Diameter (Remember, 4" wheels are actually 4.125!)
   //    (or tracking wheel diameter)
@@ -32,7 +32,8 @@ Drive chassis (
   //    (or gear ratio of tracking wheel)
   // eg. if your drive is 84:36 where the 36t is powered, your RATIO would be 2.333.
   // eg. if your drive is 36:60 where the 60t is powered, your RATIO would be 0.6.
-  ,1
+  // 84: 60 where the 60t is powered, RATIO 1.4
+  ,1.4
 
   // Uncomment if using tracking wheels
   /*
@@ -140,21 +141,13 @@ void opcontrol() {
   bool intake_flag = {false};
   bool intake_reverse_flag = {false};
 
-  // Indexr Position 영점 세팅
-  indexer.set_zero_position(0);
-  indexer.tare_position();
-
-
   while (true) {
 
-    // chassis.tank(); // Tank control
-    chassis.arcade_standard(ez::SPLIT); // Standard split arcade
+    chassis.tank(); // Tank control
+    // chassis.arcade_standard(ez::SPLIT); // Standard split arcade
     // chassis.arcade_standard(ez::SINGLE); // Standard single arcade
     // chassis.arcade_flipped(ez::SPLIT); // Flipped split arcade
     // chassis.arcade_flipped(ez::SINGLE); // Flipped single arcade
-
-    h_motor.move(master.get_analog(ANALOG_LEFT_X));
-
 
     // Intake를 A버튼과 B버튼으로 토글해서 한번 누르면 계속 되게 flag를 만들어서 작성
         if(master.get_digital_new_press(DIGITAL_L1)) {
@@ -185,26 +178,19 @@ void opcontrol() {
       Roller.move_velocity(0);
     }
 
-    // indexer
+  // Shooter Loading
     if (master.get_digital(DIGITAL_R1)) {
-      indexer.move_absolute(180,100);
-      pros::Task::delay(500);
-      indexer.move_absolute(-20,100);
+      while (Limit_Switch.get_value() == 0) {
+      Shooter.move_velocity(600);
+      }
+      Shooter.move_velocity(0);
     }
 
-// Shooter
-    if (master.get_digital(DIGITAL_RIGHT)) {
-      Shooter.move_velocity(320);
+    // Shooter Shooting
+    if (master.get_digital(DIGITAL_R2)) {
+      Shooter.move_relative(100, 600);
     }
-    else if (master.get_digital(DIGITAL_UP))
-    {
-      Shooter.move_velocity(300);
-    }
-    
-    else if (master.get_digital(DIGITAL_LEFT)) {
-      Shooter.move_velocity(280);
-    }
-    else if (master.get_digital(DIGITAL_DOWN)) {
+    else{
       Shooter.move_velocity(0);
     }
   
