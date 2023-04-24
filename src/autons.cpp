@@ -65,20 +65,12 @@ void modified_exit_condition() {
   chassis.set_exit_condition(chassis.drive_exit, 80, 50, 300, 150, 500, 500);
 }
 
-void fire(){
-  indexer.move_absolute(180,100);
-  pros::Task::delay(500);
-  indexer.move_absolute(-20,100);
-}
 
 
 ///
 // Drive Example
 ///
 void auto_test() {
-
-  indexer.set_zero_position(0);
-  indexer.tare_position();
   // The first parameter is target inches
   // The second parameter is max speed the robot will drive at
   // The third parameter is a boolean (true or false) for enabling/disabling a slew at the start of drive motions
@@ -95,49 +87,6 @@ void auto_test() {
 
   chassis.set_drive_pid(-10, 100, true);
   chassis.wait_drive();
-
-  Shooter.move_velocity(400);
-  pros::Task::delay(6000);
-  fire();
-  pros::Task::delay(400);
-  fire();
-  pros::Task::delay(400);
-  fire();
-  Shooter.move_velocity(0);
-
-  intake.move_velocity(600);
-
-  chassis.set_drive_pid(25, 100, true);
-  chassis.wait_drive();
-
-  chassis.set_swing_pid(ez::LEFT_SWING, 45, 90);
-  chassis.wait_drive();
-
-  chassis.set_drive_pid(-44, DRIVE_SPEED);
-  chassis.wait_drive();
-
-  chassis.set_swing_pid(ez::RIGHT_SWING, 110, 90);
-  chassis.wait_drive();
-
-  intake.move_velocity(0);
-
-  Shooter.move_velocity(400);
-  pros::Task::delay(6000);
-  fire();
-  pros::Task::delay(400);
-  fire();
-  pros::Task::delay(1000);
-  fire();
-  Shooter.move_velocity(0);
-
-  chassis.set_swing_pid(ez::RIGHT_SWING, 90, 90);
-  chassis.wait_drive();
-
-  chassis.set_drive_pid(-8, DRIVE_SPEED, true);
-  chassis.wait_drive();
-
-  Roller.move_relative(300, 100);
-
 
   // chassis.set_turn_pid(90, TURN_SPEED);
   // chassis.wait_drive();

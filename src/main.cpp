@@ -81,6 +81,9 @@ void initialize() {
     Auton("Test Drive\n\nBYCD7.", auto_test),
   });
 
+  // Shooter Hold
+  Shooter.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
+
   // Initialize chassis and auton selector
   chassis.initialize();
   ez::as::initialize();
@@ -126,7 +129,7 @@ void autonomous() {
   chassis.reset_pid_targets(); // Resets PID targets to 0
   chassis.reset_gyro(); // Reset gyro position to 0
   chassis.reset_drive_sensor(); // Reset drive sensors to 0
-  chassis.set_drive_brake(MOTOR_BRAKE_HOLD); // Set motors to hold.  This helps autonomous consistency.
+  chassis.set_drive_brake(MOTOR_BRAKE_HOLD);
 
   ez::as::auton_selector.call_selected_auton(); // Calls selected auton from autonomous selector.
 }
@@ -134,7 +137,8 @@ void autonomous() {
 // 메뉴얼 코드
 void opcontrol() {
 
-  chassis.set_drive_brake(MOTOR_BRAKE_COAST);
+  S_Lotation.reset(); // Reset rotation sensor to 0
+  S_Lotation.reset_position(); // Set rotation sensor to 0
   // Port 세팅
   // Intaker flag 선언
   intake.move_velocity(0);
@@ -142,6 +146,8 @@ void opcontrol() {
   bool intake_reverse_flag = {false};
 
   while (true) {
+
+    master.print(0, 2, "Lotation: %d", S_Lotation.get_position());
 
     chassis.tank(); // Tank control
     // chassis.arcade_standard(ez::SPLIT); // Standard split arcade
@@ -171,7 +177,7 @@ void opcontrol() {
         }
 
     // Roller
-    if (master.get_digital(DIGITAL_R2)) {
+    if (master.get_digital(DIGITAL_X)) {
       Roller.move_velocity(600);
     }
     else{
@@ -179,21 +185,30 @@ void opcontrol() {
     }
 
   // Shooter Loading
-    if (master.get_digital(DIGITAL_R1)) {
-      while (Limit_Switch.get_value() == 0) {
-      Shooter.move_velocity(600);
+      // R1버튼을 눌렀을 때 Rotation Sensor가 70도 이상일 때까지 로더를 돌림
+      if (master.get_digital_new_press(DIGITAL_R1)) {
+        while(S_Lotation.get_position() < 7000) {
+          Shooter.move_velocity(600);
+        }
+        Shooter.move_velocity(0);
       }
-      Shooter.move_velocity(0);
-    }
+
 
     // Shooter Shooting
     if (master.get_digital(DIGITAL_R2)) {
-      Shooter.move_relative(100, 600);
+      Shooter.move_velocity(100);
     }
     else{
       Shooter.move_velocity(0);
     }
-  
+
+    // EndGame
+    if (master.get_digital(DIGITAL_UP)) {
+      EndGame.move_velocity(150);
+    }
+    else{
+      EndGame.move_velocity(0);
+    }  
 
 
 
